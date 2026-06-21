@@ -1,0 +1,56 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: uib-pulse
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/uib_pulse?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: root
+    password: ""
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+  # Oracle datasource (secondary - for Power Query ETL reference)
+  # datasource-oracle:
+  #   url: jdbc:oracle:thin:@//oracle-host:1521/ORCLPDB1
+  #   username: oracle_user
+  #   password: oracle_password
+
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: "your_mailtrap_username"
+    password: "your_mailtrap_password"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  google:
+    client-id: "493510963157-5s973qircr42g6ress6hea56e7hfhf4f.apps.googleusercontent.com"
+  jwt:
+    secret: UIBPulse2024SuperSecretKeyForJWTSigningMustBe256BitsLongAtMinimum!
+    expiration-ms: 86400000  # 24 hours
+
+  cors:
+    allowed-origins: "http://localhost:5173,http://localhost:3000"
+
+logging:
+  level:
+    com.uib.pulse: DEBUG
+    org.springframework.security: INFO

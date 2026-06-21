@@ -1,0 +1,300 @@
+// ════════════════════════════════════════════════════════════════════════════
+// UIB Pulse — DAX Measures
+// Tool: Power BI Desktop
+// Model: Projects | KPI_Entries | Tickets | Date (Dim)
+//
+// Seuils d'alerte (UIB CDC):
+//   ✅ Vert   : >= 90%
+//   ⚠️ Orange : 75% – 89%
+//   🔴 Rouge  : < 75%
+// ════════════════════════════════════════════════════════════════════════════
+
+
+// ─── TABLE: KPI Reference ────────────────────────────────────────────────────
+
+// Create a calculated table for KPI metadata (reference / seuils)
+KPI_Reference =
+DATATABLE(
+    "KPI_Code",   STRING,
+    "Label_FR",   STRING,
+    "Label_EN",   STRING,
+    "Green_Min",  DOUBLE,
+    "Orange_Min", DOUBLE,
+    "Unit",       STRING,
+    {
+        { "KPI-P2",  "Taux de Déploiement",   "Deployment Rate",       90, 75, "%" },
+        { "KPI-D2",  "SLA E-Ticketing",        "E-Ticketing SLA",       90, 75, "%" },
+        { "KPI-P10", "Anomalies Critiques",    "Critical Anomalies",    90, 75, "%" },
+        { "KPI-P1",  "Taux de Réalisation",    "Achievement Rate",      90, 75, "%" },
+        { "KPI-P3",  "Respect des Délais",     "Schedule Compliance",   85, 70, "%" }
+    }
+)
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// ── KPI-P2 : Taux de Déploiement
+// Formula: (Projets déployés / Projets planifiés) × 100
+// ════════════════════════════════════════════════════════════════════════════
+
+[KPI-P2] Taux de Déploiement =
+VAR Deployed =
+    CALCULATE(
+        COUNTROWS(Projects),
+        Projects[Status] = "COMPLETED"
+    )
+VAR Total =
+    CALCULATE(
+        COUNTROWS(Projects),
+        NOT Projects[Status] IN { "CANCELLED" }
+    )
+VAR Rate =
+    DIVIDE(Deployed, Total, 0) * 100
+RETURN
+    ROUND(Rate, 1)
+
+
+[KPI-P2] Statut =
+VAR Rate = [KPI-P2 Taux de Déploiement]
+RETURN
+    SWITCH(
+        TRUE(),
+        Rate >= 90, "✅ Vert",
+        Rate >= 75, "⚠️ Orange",
+        "🔴 Rouge"
+    )
+
+
+[KPI-P2] Écart vs Cible =
+VAR Rate = [KPI-P2 Taux de Déploiement]
+RETURN
+    ROUND(Rate - 90, 1)
+
+
+[KPI-P2] Projets Déployés =
+CALCULATE(
+    COUNTROWS(Projects),
+    Projects[Status] = "COMPLETED"
+)
+
+
+[KPI-P2] Projets Planifiés =
+CALCULATE(
+    COUNTROWS(Projects),
+    NOT Projects[Status] IN { "CANCELLED" }
+)
+
+
+[KPI-P2] Projets en Retard =
+CALCULATE(
+    COUNTROWS(Projects),
+    Projects[Status] = "DELAYED"
+)
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// ── KPI-D2 : SLA E-Ticketing
+// Formula: (Tickets critiques clos en J+1 / Total tickets critiques) × 100
+// ════════════════════════════════════════════════════════════════════════════
+
+[KPI-D2] SLA E-Ticketing =
+VAR Total_Critical =
+    CALCULATE(
+        COUNTROWS(Tickets),
+        Tickets[Priority] = "CRITICAL"
+    )
+VAR Closed_J1 =
+    CALCULATE(
+        COUNTROWS(Tickets),
+        Tickets[Priority]    = "CRITICAL",
+        Tickets[Status]      = "CLOSED",
+        Tickets[Resolved_J1] = TRUE()
+    )
+VAR Rate =
+    DIVIDE(Closed_J1, Total_Critical, 0) * 100
+RETURN
+    ROUND(Rate, 1)
+
+
+[KPI-D2] Statut =
+VAR Rate = [KPI-D2 SLA E-Ticketing]
+RETURN
+    SWITCH(
+        TRUE(),
+        Rate >= 90, "✅ Vert",
+        Rate >= 75, "⚠️ Orange",
+        "🔴 Rouge"
+    )
+
+
+[KPI-D2] SLA — Niveau N1 =
+VAR Total =
+    CALCULATE(
+        COUNTROWS(Tickets),
+        Tickets[Priority] = "CRITICAL",
+        Tickets[Level]    = "N1"
+    )
+VAR Closed_J1 =
+    CALCULATE(
+        COUNTROWS(Tickets),
+        Tickets[Priority]    = "CRITICAL",
+        Tickets[Level]       = "N1",
+        Tickets[Status]      = "CLOSED",
+        Tickets[Resolved_J1] = TRUE()
+    )
+RETURN
+    ROUND(DIVIDE(Closed_J1, Total, 0) * 100, 1)
+
+
+[KPI-D2] SLA — Niveau N2 =
+VAR Total =
+    CALCULATE(
+        COUNTROWS(Tickets),
+        Tickets[Priority] = "CRITICAL",
+        Tickets[Level]    = "N2"
+    )
+VAR Closed_J1 =
+    CALCULATE(
+        COUNTROWS(Tickets),
+        Tickets[Priority]    = "CRITICAL",
+        Tickets[Level]       = "N2",
+        Tickets[Status]      = "CLOSED",
+        Tickets[Resolved_J1] = TRUE()
+    )
+RETURN
+    ROUND(DIVIDE(Closed_J1, Total, 0) * 100, 1)
+
+
+[KPI-D2] Tickets Critiques Total =
+CALCULATE(
+    COUNTROWS(Tickets),
+    Tickets[Priority] = "CRITICAL"
+)
+
+
+[KPI-D2] Tickets Clos J+1 =
+CALCULATE(
+    COUNTROWS(Tickets),
+    Tickets[Priority]    = "CRITICAL",
+    Tickets[Status]      = "CLOSED",
+    Tickets[Resolved_J1] = TRUE()
+)
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// ── KPI-P10 : Anomalies Critiques
+// Formula: (Anomalies détectées avant production / Total anomalies) × 100
+// ════════════════════════════════════════════════════════════════════════════
+
+[KPI-P10] Anomalies Critiques =
+VAR Detected_Before_Prod =
+    CALCULATE(
+        [KPI-P10 Raw: Anomalies avant prod]
+    )
+VAR Total_Anomalies =
+    CALCULATE(
+        [KPI-P10 Raw: Total anomalies]
+    )
+VAR Rate =
+    DIVIDE(Detected_Before_Prod, Total_Anomalies, 0) * 100
+RETURN
+    ROUND(Rate, 1)
+
+
+// Helper measures — map to your actual anomaly table/column names
+[KPI-P10 Raw: Anomalies avant prod] =
+CALCULATE(
+    COUNTROWS(KPI_Entries),
+    KPI_Entries[KPI_Code]     = "KPI-P10-BEFORE",
+    KPI_Entries[Data_Source] IN { "ORACLE", "EXCEL", "MANUAL" }
+)
+
+
+[KPI-P10 Raw: Total anomalies] =
+CALCULATE(
+    COUNTROWS(KPI_Entries),
+    KPI_Entries[KPI_Code] IN { "KPI-P10-BEFORE", "KPI-P10-AFTER" }
+)
+
+
+[KPI-P10] Statut =
+VAR Rate = [KPI-P10 Anomalies Critiques]
+RETURN
+    SWITCH(
+        TRUE(),
+        Rate >= 90, "✅ Vert",
+        Rate >= 75, "⚠️ Orange",
+        "🔴 Rouge"
+    )
+
+
+[KPI-P10] Anomalies Détectées Avant Prod =
+[KPI-P10 Raw: Anomalies avant prod]
+
+
+[KPI-P10] Total Anomalies =
+[KPI-P10 Raw: Total anomalies]
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// ── Shared / Utility Measures
+// ════════════════════════════════════════════════════════════════════════════
+
+// Global Health Score: weighted average of the 3 main KPIs
+[Score de Santé Global] =
+VAR W_P2  = 0.40   // 40% weight — Deployment is most critical
+VAR W_D2  = 0.35   // 35% weight — SLA is customer-facing
+VAR W_P10 = 0.25   // 25% weight — Quality gate
+RETURN
+    ROUND(
+        W_P2  * [KPI-P2 Taux de Déploiement] +
+        W_D2  * [KPI-D2 SLA E-Ticketing]     +
+        W_P10 * [KPI-P10 Anomalies Critiques],
+        1
+    )
+
+
+[Statut Santé Globale] =
+VAR Score = [Score de Santé Global]
+RETURN
+    SWITCH(
+        TRUE(),
+        Score >= 90, "✅ Vert",
+        Score >= 75, "⚠️ Orange",
+        "🔴 Rouge"
+    )
+
+
+// Traffic-light color hex (for conditional formatting)
+[Couleur Statut] =
+VAR Score = [Score de Santé Global]
+RETURN
+    SWITCH(
+        TRUE(),
+        Score >= 90, "#22C55E",
+        Score >= 75, "#F59E0B",
+        "#E2001A"
+    )
+
+
+// Dynamic KPI title for selected slicer value
+[Titre KPI Sélectionné] =
+VAR Selected = SELECTEDVALUE(KPI_Reference[KPI_Code], "Tous")
+VAR Label    = SELECTEDVALUE(KPI_Reference[Label_FR], "Vue d'ensemble")
+RETURN
+    Selected & " — " & Label
+
+
+// Period label for card titles
+[Période Active] =
+VAR MinDate = CALCULATE(MIN(KPI_Entries[Date]), ALLSELECTED())
+VAR MaxDate = CALCULATE(MAX(KPI_Entries[Date]), ALLSELECTED())
+RETURN
+    FORMAT(MinDate, "MMM YYYY") & " → " & FORMAT(MaxDate, "MMM YYYY")
+
+
+// Budget consumption rate
+[Taux Consommation Budget] =
+VAR Consumed = SUM(Projects[BudgetConsumed])
+VAR Planned  = SUM(Projects[BudgetPlanned])
+RETURN
+    ROUND(DIVIDE(Consumed, Planned, 0) * 100, 1)

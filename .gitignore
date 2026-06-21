@@ -1,10 +1,13 @@
 # Frontend
+node_modules/
 uib-pulse-frontend/node_modules/
 projet-pfe-ismail-main/uib-pulse-frontend/node_modules/
+dist/
 uib-pulse-frontend/dist/
 projet-pfe-ismail-main/uib-pulse-frontend/dist/
 
 # Backend build
+build/
 uib-pulse-backend/target/
 projet-pfe-ismail-main/uib-pulse-backend/target/
 
@@ -21,6 +24,10 @@ projet-pfe-ismail-main/uib-pulse-backend/.maven/
 .claude/
 projet-pfe-ismail-main/.claude/
 
+# Environment
+.env
+.env.local
+
 # IDE
 .vscode/
 .idea/
@@ -29,6 +36,13 @@ projet-pfe-ismail-main/.claude/
 # OS
 .DS_Store
 Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+.venv/
 
 # Logs
 *.log
