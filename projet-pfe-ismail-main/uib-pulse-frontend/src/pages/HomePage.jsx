@@ -211,68 +211,106 @@ export default function HomePage() {
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
 
-      {/* ── NAVBAR ─────────────────────────────────────────────────────── */}
-      <nav
-        className="relative z-10 flex items-center justify-between px-8 py-4 border-b border-[#DDD8CF] dark:border-white/[0.06] bg-white/80 dark:bg-transparent backdrop-blur-xl transition-colors duration-300"
-      >
-        {/* Logo + UIB Pulse text */}
-        <div
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="flex items-center gap-3 cursor-pointer group"
-          title="Accueil"
-        >
-          <div className="h-10 w-auto flex items-center justify-center overflow-hidden group-hover:opacity-90 transition-opacity duration-200">
-            <img
-              src="/logo.png"
-              alt="UIB"
-              className="h-full w-auto object-contain"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-            <div className="hidden px-3 h-10 bg-uib-red rounded-lg items-center justify-center">
-              <span className="text-white font-black text-sm tracking-tight">UIB</span>
-            </div>
+      {/* ── HEADER — same style as dashboard ──────────────────────────── */}
+      <header className="sticky top-0 z-10 flex items-center justify-between px-6 h-16 border-b border-[#DDD8CF] dark:border-white/[0.06] bg-white/95 dark:bg-[#0A0A0A]/90 backdrop-blur-sm transition-colors duration-300">
+
+        {/* Left — logo + title */}
+        <div className="flex flex-col justify-center">
+          <div className="flex items-center gap-1.5 text-[11px] text-gray-400 dark:text-white/30 font-medium mb-0.5">
+            <span>UIB Pulse</span>
+            <span>/</span>
+            <span style={{ color: '#E2001A' }}>Accueil</span>
           </div>
-          <span className="font-black text-gray-900 dark:text-white text-xl tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-            UIB <span style={{ color: '#E2001A' }}>Pulse</span>
-          </span>
+          <h1 className="text-base font-bold text-gray-900 dark:text-white leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            Accueil
+          </h1>
         </div>
 
+        {/* Right — actions */}
+        <div className="flex items-center gap-3">
 
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={toggleTheme} 
-            className="hidden md:flex p-2.5 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-white/70 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
-            title={theme === 'dark' ? "Passer en mode clair" : "Passer en mode sombre"}
+          {/* Dark / Light toggle */}
+          <button
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+            className="flex items-center justify-center w-9 h-9 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-200"
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-          
-          {/* CTA */}
-          <div className="flex items-center gap-2">
-            {hasSession && (
-              <motion.button
-                onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-200 dark:border-white/10 text-gray-600 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-              >
-                Déconnexion
-              </motion.button>
+            {theme === 'dark' ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+              </svg>
             )}
-            <motion.button
-              onClick={onEnterDashboard}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-uib-red hover:bg-red-700 transition-colors duration-200 shadow-sm"
+          </button>
+
+          <div className="w-px h-6 bg-gray-200 dark:bg-white/10" />
+
+          {hasSession ? (
+            <>
+              {/* User info */}
+              {(() => {
+                const u = (() => { try { return JSON.parse(localStorage.getItem('uib_user') || '{}'); } catch { return {}; } })();
+                const roleLabel = u.role === 'ROLE_ADMIN' ? 'Administrateur' : 'Manager';
+                const roleColor = u.role === 'ROLE_ADMIN' ? '#1C3A5E' : '#E2001A';
+                const roleBg    = u.role === 'ROLE_ADMIN' ? 'rgba(28,58,94,0.1)' : 'rgba(226,0,26,0.1)';
+                return (
+                  <div className="flex items-center gap-2">
+                    <div className="text-right hidden sm:block">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                        {u.fullName || u.username || 'Utilisateur'}
+                      </p>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: roleBg, color: roleColor }}>
+                        {roleLabel}
+                      </span>
+                    </div>
+                    <img
+                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u?.username || 'user')}&backgroundColor=e20032`}
+                      alt="avatar"
+                      className="w-9 h-9 rounded-full border-2 border-gray-100 dark:border-white/10 object-cover bg-gray-100"
+                    />
+                  </div>
+                );
+              })()}
+
+              <div className="w-px h-6 bg-gray-200 dark:bg-white/10" />
+
+              {/* Go to dashboard */}
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-white bg-uib-red hover:bg-red-700 transition-colors duration-200"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                </svg>
+                <span className="hidden sm:inline">Tableau de Bord</span>
+              </button>
+
+              {/* Logout */}
+              <button
+                onClick={() => { localStorage.clear(); window.location.href = '/'; }}
+                title="Se déconnecter"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-gray-500 dark:text-white/50 hover:text-uib-red hover:bg-red-50 dark:hover:bg-uib-red/10 border border-transparent hover:border-red-100 dark:hover:border-uib-red/20 transition-all duration-200"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+                <span className="hidden sm:inline">Déconnexion</span>
+              </button>
+            </>
+          ) : (
+            /* Not logged in — just a login button */
+            <button
+              onClick={() => setAuthOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-uib-red hover:bg-red-700 transition-colors duration-200 shadow-sm"
             >
-              {hasSession ? 'Mon Tableau de Bord' : 'Accéder au Tableau de Bord'}
-            </motion.button>
-          </div>
+              Se connecter
+            </button>
+          )}
         </div>
-      </nav>
+      </header>
 
       {/* ── HERO ───────────────────────────────────────────────────────── */}
       <section className="relative z-10 pt-24 pb-20 px-8 text-center">

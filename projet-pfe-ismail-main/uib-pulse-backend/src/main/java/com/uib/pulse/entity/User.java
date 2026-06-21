@@ -1,5 +1,6 @@
 package com.uib.pulse.entity;
 
+import com.uib.pulse.security.AesEncryptor;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,10 +24,12 @@ public class User {
     @Column(nullable = false)
     private String password;  // BCrypt hashed
 
-    @Column(nullable = false, length = 50)
+    @Convert(converter = AesEncryptor.class)
+    @Column(nullable = false, length = 500)
     private String fullName;
 
-    @Column(unique = true, length = 150)
+    @Convert(converter = AesEncryptor.class)
+    @Column(unique = true, length = 500)
     private String email;
 
     /**
