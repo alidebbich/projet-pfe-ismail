@@ -1,0 +1,34 @@
+# Frontend
+uib-pulse-frontend/node_modules/
+projet-pfe-ismail-main/uib-pulse-frontend/node_modules/
+uib-pulse-frontend/dist/
+projet-pfe-ismail-main/uib-pulse-frontend/dist/
+
+# Backend build
+uib-pulse-backend/target/
+projet-pfe-ismail-main/uib-pulse-backend/target/
+
+# Maven extracted/installed
+uib-pulse-backend/maven/
+projet-pfe-ismail-main/uib-pulse-backend/maven/
+uib-pulse-backend/.maven-extracted/
+projet-pfe-ismail-main/uib-pulse-backend/.maven-extracted/
+uib-pulse-backend/.maven/
+projet-pfe-ismail-main/uib-pulse-backend/.maven/
+*.zip
+
+# Claude settings
+.claude/
+projet-pfe-ismail-main/.claude/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

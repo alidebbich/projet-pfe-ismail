@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO -->
+    <title>UIB Pulse — Tableau de Bord Performance Bancaire</title>
+    <meta name="description" content="UIB Pulse est un outil de pilotage de la performance des projets bancaires UIB. Visualisez vos KPIs en temps réel avec des tableaux de bord interactifs." />
+    <meta name="theme-color" content="#E2001A" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏦</text></svg>" />
+  </head>
+  <body>
+    <script>
+      // Always start in light mode
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('uib_theme', 'light');
+
+      // Pre-load Power BI embed URLs (all pages from the same report)
+      var _s = JSON.parse(localStorage.getItem('uib_settings') || '{}');
+      var _r = '01ac75cc-8af3-4fa6-9f90-997f0efb5f5f';
+      var _b = 'https://app.powerbi.com/reportEmbed?reportId=' + _r + '&autoAuth=true&pageName=';
+      _s.pbiUrlData        = _s.pbiUrlData        || (_b + '1acf49730d8c4308651e');
+      _s.pbiUrlQualite     = _s.pbiUrlQualite     || (_b + '13d71cc34c015bd02c7c');
+      _s.pbiUrlAvancement  = _s.pbiUrlAvancement  || (_b + 'a0840a4aa03c2945b096');
+      _s.pbiUrlAdoption    = _s.pbiUrlAdoption    || (_b + '60b7631a7404dc0aebd9');
+      _s.pbiUrlSupport     = _s.pbiUrlSupport     || (_b + '4e18b2b26bf851efa911');
+      localStorage.setItem('uib_settings', JSON.stringify(_s));
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
