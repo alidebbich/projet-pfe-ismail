@@ -111,7 +111,7 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ## 📞 Support
 
-For support, email support@example.com or open an [issue](https://github.com/alidebbich/projet-pfe-ismail/issues)
+For support, email debbicheali04@gmail.com or open an [issue](https://github.com/alidebbich/projet-pfe-ismail/issues)
 
 ## 🙏 Acknowledgments
 
